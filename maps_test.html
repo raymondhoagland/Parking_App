@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+
+<html>
+  
+  <head>
+   
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    
+    <style type="text/css">
+      html { height: 100% }
+      body { height: 100%; margin: 0; padding: 0 }
+      #map-canvas { height: 100% }
+    </style>
+    
+    <script type="text/javascript">
+
+      function initialize() {
+
+        var mapOptions = {
+          center: new google.maps.LatLng(37.441883400000000000, -122.143019499999980000),
+          zoom: 12
+        };
+
+        var map = new google.maps.Map(document.getElementById("map-canvas"),
+          mapOptions
+        );
+
+        /*
+        var marker = new google.maps.Marker({
+          position: map.getCenter(),
+          map: map,
+          title: 'Click to zoom..biotch'
+        });
+        */
+
+        /*
+        google.maps.event.addListener(map, 'center_changed', function() {
+          window.setTimeout(function() {
+            map.panTo(marker.getPosition());
+          }
+          , 3000);
+        });
+        */
+ 
+ /*
+        google.maps.event.addListener(marker, 'click', function() {
+          map.setZoom(12);
+          map.setCenter(marker.getPosition());
+        });
+*/
+
+        google.maps.event.addListener(map, 'click', function(event){
+
+          var marker = new google.maps.Marker({
+            position: event.latLng,
+            map: map,
+            title: 'Sir Derpsalot'
+          });
+
+          map.setCenter(event.latLng);
+
+          google.maps.event.addListener(marker, 'click', function(){
+            marker.setMap(null);
+            marker = null;
+          });
+        });
+      }
+      
+      function loadScript() {
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&' +
+      'callback=initialize';
+        //script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBr9OTerSmmCRkYMM94g9i2qYAaQSupstk' +
+      //'callback=initialize';
+        document.body.appendChild(script);
+      }
+
+      window.onload = loadScript;
+      
+      google.maps.event.addDomListener(window, 'load', initialize);
+    </script>
+
+  </head>
+
+  <body>
+
+    <div id="map-canvas"/>
+
+  </body>
+
+</html>

@@ -22,6 +22,7 @@
       }
     </style>
     <script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
+    <script type="text/javascript" src="jquery-2.1.1.min.js"></script>
     <script>
       var geocoder;
       var map;
@@ -35,41 +36,42 @@
           center: latlng
         }
         map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
-
-        
+       
         google.maps.event.addListener(map, 'click', function(event){
           geocoder.geocode({'latLng': event.latLng}, function(results, status) {
 
-          if (status == google.maps.GeocoderStatus.OK) {
+            if (status == google.maps.GeocoderStatus.OK) {
 
-            if(results[1]) {
-              
-              var database_file = new File('../database_test.txt');
-              var reader = new FileReader();
-              reader.readAsText(database_file);
+              if(results[1]) {
 
-              var marker = new google.maps.Marker({
-                position: event.latLng,
-                map: map,
-                title: results[0].formatted_address
-              });
-              
-              map.setZoom(16);
-              map.setCenter(event.latLng);
+                var marker = new google.maps.Marker({
+                  position: event.latLng,
+                  map: map,
+                  title: results[0].formatted_address
+                });
+                
+                map.setZoom(16);
+                map.setCenter(event.latLng);
 
-              google.maps.event.addListener(marker, 'click', function(){
-                marker.setMap(null);
-                marker = null;
-              }); 
+                google.maps.event.addListener(marker, 'click', function(){
+                  marker.setMap(null);
+                  marker = null;
+                }); 
 
-            }
+                streetinfo = results[0].formatted_address.split(',')[0]
+                streetinfo = streetinfo.split(' ');
+                streetnum = String(streetinfo[0].split('-')[0]);
+                streetname = String(streetinfo.slice(1).join(' '));
+                loadJSON(streetname, streetnum);
+
+              }
+              else {
+                alert('No results found');
+              }
+            } 
             else {
-              alert('No results found');
+              alert('Geocoder failed due to: ' + status);
             }
-          } 
-          else {
-            alert('Geocoder failed due to: ' + status);
-          }
           });  
         });
         
@@ -89,6 +91,28 @@
           } else {
             alert('Geocode was not successful for the following reason: ' + status);
           }
+        });
+      }
+
+      function loadJSON(streetname, streetnum) {
+        $(document).ready(function() {
+            $.getJSON('Info_JSON.json', function(json) {
+              for (var i = json.length - 1; i >= 0; i--) {
+                if(json[i].Street === streetname) {
+                  if(json[i].AddressNumbers === 'All') {
+                    alert(json[i].Days);
+                  }
+                  else {
+                    var lower = json[i].AddressNumbers.split('-')[0];
+                    var upper = json[i].AddressNumbers.split('-')[1];
+                    if(parseInt(streetnum) > parseInt(lower) && parseInt(streetnum) < parseInt(upper)) {
+                      alert(json[i].Days);
+                    }
+                  }
+                  //alert(json[i].Street);
+                }
+              };
+            });
         });
       }
 

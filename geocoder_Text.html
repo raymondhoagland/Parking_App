@@ -108,15 +108,22 @@
             var streetnum = String(streetinfo[0].split('-')[0]);
             var streetname = String(streetinfo.slice(1).join(' '));
             loadJSON(streetname, streetnum, function(returndata){
-              alert('1');
+                  farq = returndata;
+                  
+                  var marker = new google.maps.Marker({
+                    position: event.latLng,
+                    map: map,
+                    title: results[0].formatted_address + '\n' + 'Street swept on: ' + String(farq)
+                  });
+                
+                  map.setZoom(16);
+                  map.setCenter(event.latLng);
+
+                  google.maps.event.addListener(marker, 'click', function(){
+                    marker.setMap(null);
+                    marker = null;
+                  });
             });
-            map.setCenter(results[0].geometry.location);
-            var marker = new google.maps.Marker({
-                map: map,
-                position: results[0].geometry.location,
-                title: results[0].formatted_address
-            });
-            map.setZoom(16);
           } else {
             alert('Geocode was not successful for the following reason: ' + status);
           }
@@ -127,24 +134,29 @@
         //$(document).ready(function() {
           $.getJSON('Info_JSON.json', function(json) {
             for (var i = json.length - 1; i >= 0; i--) {
-              streetname_no_suffix = streetname.split();
+
+              streetname_no_suffix = streetname.split(' ');
               streetname_no_suffix = streetname_no_suffix.slice(0, streetname_no_suffix.length-1);
               streetname_no_suffix = streetname_no_suffix.join(' ');
 
-              check_streetname_no_suffix = json[i].Street.split();
+              check_streetname_no_suffix = json[i].Street.split(' ');
               check_streetname_no_suffix = check_streetname_no_suffix.slice(0, check_streetname_no_suffix.length-1);
               check_streetname_no_suffix = check_streetname_no_suffix.join(' ');
 
               if(check_streetname_no_suffix === streetname_no_suffix) {
+                //alert(json[i].Street);
+                //alert(json[i].AddressNumbers);
                 if(json[i].AddressNumbers === 'All') {
                   callback(json[i].Days);
                 }
                 else {
                   var lower = json[i].AddressNumbers.split('-')[0];
                   var upper = json[i].AddressNumbers.split('-')[1];
+                  //alert(String(lower)+'-'+String(upper));
+                  //alert(streetnum);
                   if(parseInt(streetnum) > parseInt(lower) && parseInt(streetnum) < parseInt(upper)) {
-                    //alert(json[i].Days);
-                    callback(json[i].Days);
+                    //alert('Presto');
+                    callback(json[i].Days.join(' '));
                   }
                 }
               }

@@ -36,7 +36,7 @@
           center: latlng
         }
         map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
-       
+
         google.maps.event.addListener(map, 'click', function(event){
           geocoder.geocode({'latLng': event.latLng}, function(results, status) {
 
@@ -67,7 +67,7 @@
                   });
 
                   infowindow.open(map, marker);
-                
+
                   map.setZoom(16);
                   map.setCenter(event.latLng);
 
@@ -84,7 +84,7 @@
                   map: map,
                   title: results[0].formatted_address + '\n' + String(farq)
                 });
-                
+
                 map.setZoom(16);
                 map.setCenter(event.latLng);
 
@@ -98,13 +98,13 @@
               else {
                 alert('No results found');
               }
-            } 
+            }
             else {
               alert('Geocoder failed due to: ' + status);
             }
-          });  
+          });
         });
-        
+
       }
 
       function codeAddress() {
@@ -123,7 +123,7 @@
                     map: map,
                     title: results[0].formatted_address + '\n' + 'Street swept on: ' + String(farq)
                   });
-                
+
                   map.setZoom(16);
                   map.setCenter(event.latLng);
 
@@ -137,40 +137,47 @@
           }
         });
       }
-
+      var _cachedJSON = null;
       function loadJSON(streetname, streetnum, callback) {
-        //$(document).ready(function() {
-          $.getJSON('Info_JSON.json', function(json) {
-            for (var i = json.length - 1; i >= 0; i--) {
+        var checkJSON = function(json) {
+          for (var i = json.length - 1; i >= 0; i--) {
 
-              streetname_no_suffix = streetname.split(' ');
-              streetname_no_suffix = streetname_no_suffix.slice(0, streetname_no_suffix.length-1);
-              streetname_no_suffix = streetname_no_suffix.join(' ');
+            streetname_no_suffix = streetname.split(' ');
+            streetname_no_suffix = streetname_no_suffix.slice(0, streetname_no_suffix.length-1);
+            streetname_no_suffix = streetname_no_suffix.join(' ');
 
-              check_streetname_no_suffix = json[i].Street.split(' ');
-              check_streetname_no_suffix = check_streetname_no_suffix.slice(0, check_streetname_no_suffix.length-1);
-              check_streetname_no_suffix = check_streetname_no_suffix.join(' ');
+            check_streetname_no_suffix = json[i].Street.split(' ');
+            check_streetname_no_suffix = check_streetname_no_suffix.slice(0, check_streetname_no_suffix.length-1);
+            check_streetname_no_suffix = check_streetname_no_suffix.join(' ');
 
-              if(check_streetname_no_suffix === streetname_no_suffix) {
-                //alert(json[i].Street);
-                //alert(json[i].AddressNumbers);
-                if(json[i].AddressNumbers === 'All') {
-                  callback(json[i].Days);
-                }
-                else {
-                  var lower = json[i].AddressNumbers.split('-')[0];
-                  var upper = json[i].AddressNumbers.split('-')[1];
-                  //alert(String(lower)+'-'+String(upper));
-                  //alert(streetnum);
-                  if(parseInt(streetnum) > parseInt(lower) && parseInt(streetnum) < parseInt(upper)) {
-                    //alert('Presto');
-                    callback(json[i].Days.join(' '));
-                  }
+            if(check_streetname_no_suffix === streetname_no_suffix) {
+              //alert(json[i].Street);
+              //alert(json[i].AddressNumbers);
+              if(json[i].AddressNumbers === 'All') {
+                callback(json[i].Days);
+              }
+              else {
+                var lower = json[i].AddressNumbers.split('-')[0];
+                var upper = json[i].AddressNumbers.split('-')[1];
+                //alert(String(lower)+'-'+String(upper));
+                //alert(streetnum);
+                if(parseInt(streetnum) > parseInt(lower) && parseInt(streetnum) < parseInt(upper)) {
+                  //alert('Presto');
+                  callback(json[i].Days.join(' '));
                 }
               }
-            };
+            }
+          };
+
+        };
+        if (_cachedJSON) {
+          checkJSON(_cachedJSON);
+        } else {
+          $.getJSON('Info_JSON.json', function(json) {
+              _cachedJSON = json;
+              checkJSON(json);
           });
-        //});
+        }
       }
 
       google.maps.event.addDomListener(window, 'load', initialize);

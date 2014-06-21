@@ -54,11 +54,19 @@
 
                 loadJSON(streetname, streetnum, function(returndata){
                   farq = returndata;
+                  var str = "<p>" + results[0].formatted_address + "<br />" + 'Street swept on: ' + String(farq) + "</p>";
+
                   var marker = new google.maps.Marker({
                     position: event.latLng,
                     map: map,
-                    title: results[0].formatted_address + '\n' + 'Street swept on: ' + String(farq)
+                    title: str
                   });
+
+                  var infowindow = new google.maps.InfoWindow({
+                    content: str
+                  });
+
+                  infowindow.open(map, marker);
                 
                   map.setZoom(16);
                   map.setCenter(event.latLng);
@@ -109,7 +117,7 @@
             var streetname = String(streetinfo.slice(1).join(' '));
             loadJSON(streetname, streetnum, function(returndata){
                   farq = returndata;
-                  
+
                   var marker = new google.maps.Marker({
                     position: event.latLng,
                     map: map,
